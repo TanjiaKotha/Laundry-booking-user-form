@@ -22,6 +22,7 @@ function BookingForm() {
   const [confirmed, setConfirmed] = useState(false);
   const [orderId, setOrderId] = useState("");
 
+  // Categorize services by slug
   const uniforms = services.filter((item) =>
     item.slug?.toLowerCase().includes("high-vis")
   );
