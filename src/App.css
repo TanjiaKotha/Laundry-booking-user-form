@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+/* Base layout */
+body {
+  @apply bg-gray-950 text-gray-100 min-h-screen px-4 pt-8 pb-20 font-sans;
+  background: radial-gradient(
+      1200px 600px at 10% -10%,
+      rgba(59, 130, 246, 0.25),
+      transparent 55%
+    ),
+    radial-gradient(
+      1000px 600px at 110% 10%,
+      rgba(220, 38, 38, 0.18),
+      transparent 45%
+    ),
+    linear-gradient(180deg, #0b1220 0%, #0a0f1a 100%);
+}
+
+.wrap {
+  @apply w-full max-w-4xl mx-auto;
+}
+
+header {
+  @apply text-center mb-4;
+}
+
+.logo {
+  @apply w-28 h-28 mx-auto rounded-3xl grid place-items-center font-extrabold tracking-wide text-white shadow-lg;
+  background: conic-gradient(
+    from 0deg,
+    #3b82f6 0 90deg,
+    #dc2626 90deg 180deg,
+    #f59e0b 180deg 270deg,
+    #16a34a 270deg 360deg
+  );
+}
+
+h1 {
+  @apply text-[clamp(22px,3.2vw,30px)] my-3;
+}
+
+.sub {
+  @apply text-gray-400 text-sm;
+}
+
+/* Form styling */
+form {
+  @apply bg-white/5 border border-white/10 backdrop-blur-md shadow-lg rounded-2xl p-5;
+}
+
+.grid.two {
+  @apply grid gap-4 md:grid-cols-2;
+}
+
+.field {
+  @apply grid gap-2;
+}
+
+label {
+  @apply font-semibold;
+}
+
+.hint {
+  @apply text-gray-400 text-xs;
+}
+
+input[type="text"],
+select {
+  @apply w-full bg-gray-900 border border-white/10 text-white px-4 py-3 rounded-xl outline-none;
+}
+
+input[type="text"]:focus,
+select:focus {
+  @apply border-blue-500 ring-4 ring-blue-500/25;
+}
+
+/* Service Category */
+.service-category {
+  @apply grid gap-4 mt-6;
+}
+
+.service-category h3 {
+  @apply text-lg font-bold text-yellow-400 mb-3 pl-2 border-l-4 border-yellow-400;
+}
+
+@media (min-width: 600px) {
+  .service-category {
+    @apply grid-cols-2;
+  }
+}
+@media (min-width: 900px) {
+  .service-category {
+    @apply grid-cols-3;
+  }
+}
+
+/* Service Cards */
+.card {
+  @apply relative bg-gray-900 border border-white/10 rounded-xl overflow-hidden cursor-pointer transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:shadow-xl;
+}
+
+.media img {
+  @apply w-full h-40 object-cover block transition-transform duration-300 ease-in-out;
+}
+.card:hover .media img {
+  @apply scale-105;
+}
+
+.content {
+  @apply p-3 flex flex-col gap-1 h-full;
+}
+
+.price {
+  @apply mt-auto font-bold text-sm text-green-400;
+}
+
+.service-category input[type="checkbox"],
+.service-category input[type="radio"] {
+  @apply absolute opacity-0 pointer-events-none;
+}
+
+/* Pickup Options */
+.pickup {
+  @apply grid gap-2;
+}
+
+.pickup .option {
+  @apply bg-gray-900 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3;
+}
+
+/* Totals */
+.totals {
+  @apply bg-gradient-to-b from-blue-500/10 to-blue-500/5 border border-blue-500/25 rounded-xl p-4 grid gap-1;
+}
+
+/* Buttons */
+.actions {
+  @apply flex flex-wrap gap-2;
+}
+
+button,
+.pay-btn {
+  @apply cursor-pointer border-none rounded-xl px-4 py-3 font-bold tracking-wide text-white shadow-lg;
+}
+
+.pay-btn {
+  @apply bg-blue-600;
+}
+.pay-btn.alt {
+  @apply bg-green-600;
+}
+.pay-btn.warn {
+  @apply bg-yellow-400 text-gray-900;
+}
+.pay-btn.danger {
+  @apply bg-red-600;
+}
+
+/* Confirmation */
+.confirm {
+  @apply mt-4 hidden bg-green-500/10 border border-green-500/25 rounded-xl p-4;
+}
+
+.brand-stripe {
+  @apply h-1.5 rounded-full mt-4 mx-auto max-w-xs;
+  background: linear-gradient(90deg, #3b82f6, #dc2626, #f59e0b, #16a34a);
+}
