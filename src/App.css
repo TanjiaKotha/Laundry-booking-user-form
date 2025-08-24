@@ -34,6 +34,14 @@ header {
     #16a34a 270deg 360deg
   );
 }
+.service-img {
+  @apply w-full h-32 object-cover rounded-md mb-2;
+}
+
+.card.selected {
+  @apply border-2 border-green-400 shadow-md;
+}
+
 
 h1 {
   @apply text-[clamp(22px,3.2vw,30px)] my-3;
