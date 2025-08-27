@@ -24,10 +24,10 @@ function BookingForm() {
 
   // Categorize services by slug
   const uniforms = services.filter((item) =>
-    item.slug?.toLowerCase().includes("high-vis")
+    item.slug?.toLowerCase().includes("uniform")
   );
   const clothing = services.filter(
-    (item) => !item.slug?.toLowerCase().includes("high-vis")
+    (item) => !item.slug?.toLowerCase().includes("other")
   );
 
   const handleSubmit = (e) => {
