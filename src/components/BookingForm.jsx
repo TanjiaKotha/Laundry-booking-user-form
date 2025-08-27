@@ -1,127 +1,81 @@
 import { useState } from 'react'
 import useServices from '../hooks/useServices'
-import usePickupSlots from '../hooks/usePickupSlots'
-import usePaymentMethods from '../hooks/usePaymentMethods'
 import ServiceCategory from './ServiceCategory'
-import PickupOptions from './PickupOptions'
-import Totals from './Totals'
-import PaymentButtons from './PaymentButtons'
-import Confirmation from './Confirmation'
 
-function BookingForm() {
+export default function BookingForm() {
   const { services, loading } = useServices()
-  const slots = usePickupSlots()
-  const paymentMethods = usePaymentMethods()
+  const [selectedUniforms, setSelectedUniforms] = useState([])
+  const [selectedClothing, setSelectedClothing] = useState([])
+  const [pickupMethod, setPickupMethod] = useState('outside')
 
-  const [room, setRoom] = useState('')
-  const [slot, setSlot] = useState('')
-  const [pickup, setPickup] = useState('')
-  const [selectedItems, setSelectedItems] = useState([])
-  const [confirmed, setConfirmed] = useState(false)
-  const [orderId, setOrderId] = useState('')
+  const uniforms = services.filter(s => s.slug === 'uniform')
+  const clothing = services.filter(s => s.slug === 'other')
 
-  // ✅ Filter using ACF slug
-  const uniforms = services.filter(
-    s => typeof s.acfSlug === 'string' && s.acfSlug.toLowerCase() === 'uniform'
-  )
-  const clothing = services.filter(
-    s => typeof s.acfSlug === 'string' && s.acfSlug.toLowerCase() === 'other'
+  const totalPrice = [...selectedUniforms, ...selectedClothing].reduce(
+    (sum, item) => sum + item.price,
+    0
   )
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!room || !slot || !pickup || selectedItems.length === 0) {
-      alert('Please complete all fields and select at least one service.')
+  const handleSubmit = () => {
+    if (!services.length) {
+      alert('No services available. Please check back later.')
       return
     }
 
-    const id = 'AMA-' + Math.random().toString(36).slice(2, 8).toUpperCase()
-    setOrderId(id)
-    setConfirmed(true)
+    const payload = {
+      uniforms: selectedUniforms.map(i => i.id),
+      clothing: selectedClothing.map(i => i.id),
+      pickupMethod,
+      totalPrice,
+    }
 
-    // Optional: POST to backend
-    // fetch('/wp-json/booking/v1/create', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ room, slot, pickup, selectedItems, orderId: id })
-    // }).then(res => res.json()).then(data => {
-    //   console.log('Booking confirmed:', data)
-    // }).catch(err => {
-    //   console.error('Booking failed:', err)
-    // })
+    console.log('Submitting booking:', payload)
+    // TODO: POST to backend
   }
 
+  if (loading) return <p>Loading services...</p>
+  if (!services.length) return <p className="text-red-500">No services available. Please check back later.</p>
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid two">
-        <div className="field">
-          <label htmlFor="room">Room Number *</label>
-          <input
-            id="room"
-            type="text"
-            value={room}
-            onChange={(e) => setRoom(e.target.value)}
-            placeholder="e.g., B-214"
-            required
-          />
-          <span className="hint">Mandatory for pickup & delivery.</span>
-        </div>
-        <div className="field">
-          <label htmlFor="slot">Pickup Time Slot *</label>
-          <select
-            id="slot"
-            value={slot}
-            onChange={(e) => setSlot(e.target.value)}
-            required
-          >
-            <option value="" disabled>Select a time slot</option>
-            {slots.map(s => (
-              <option key={s.id} value={s.time}>{s.time}</option>
-            ))}
-          </select>
-        </div>
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow rounded">
+      <h1 className="text-2xl font-bold mb-4">Laundry Booking</h1>
+
+      <ServiceCategory
+        title="Uniforms"
+        items={uniforms}
+        selectedItems={selectedUniforms}
+        setSelectedItems={setSelectedUniforms}
+      />
+
+      <ServiceCategory
+        title="Other Clothing"
+        items={clothing}
+        selectedItems={selectedClothing}
+        setSelectedItems={setSelectedClothing}
+      />
+
+      <div className="mb-4">
+        <label className="block font-medium mb-1">Pickup Method</label>
+        <select
+          value={pickupMethod}
+          onChange={e => setPickupMethod(e.target.value)}
+          className="border rounded px-3 py-2 w-full"
+        >
+          <option value="inside">Pickup inside the room</option>
+          <option value="outside">Pickup outside, in front of the door</option>
+        </select>
       </div>
 
-      {!loading && services.length === 0 && (
-        <p className="text-red-500 text-center">No services available. Please check back later.</p>
-      )}
-
-      {loading ? (
-        <p className="text-gray-400 text-center">Loading services...</p>
-      ) : (
-        <>
-          <ServiceCategory
-            title="Uniforms"
-            items={uniforms}
-            selectedItems={selectedItems}
-            setSelectedItems={setSelectedItems}
-          />
-          <ServiceCategory
-            title="Other Clothing"
-            items={clothing}
-            selectedItems={selectedItems}
-            setSelectedItems={setSelectedItems}
-          />
-        </>
-      )}
-
-      <PickupOptions pickup={pickup} setPickup={setPickup} />
-      <Totals selectedItems={selectedItems} slot={slot} />
-      <PaymentButtons methods={paymentMethods} />
-      <div className="actions">
-        <button type="submit" className="pay-btn">Submit Booking</button>
+      <div className="mb-4">
+        <p className="font-semibold">Total Price: ৳{totalPrice}</p>
       </div>
 
-      {confirmed && (
-        <Confirmation
-          orderId={orderId}
-          room={room}
-          slot={slot}
-          pickup={pickup}
-        />
-      )}
-    </form>
+      <button
+        onClick={handleSubmit}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Submit Booking
+      </button>
+    </div>
   )
 }
-
-export default BookingForm
