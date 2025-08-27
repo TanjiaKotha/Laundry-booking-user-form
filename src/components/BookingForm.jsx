@@ -1,45 +1,39 @@
-import { useState } from "react";
-import useServices from "../hooks/useServices";
-import ServiceCategory from "./ServiceCategory";
-import PickupOptions from "./PickupOptions";
-import Totals from "./Totals";
-import PaymentButtons from "./PaymentButtons";
-import Confirmation from "./Confirmation";
-
-const ADMIN_SLOTS = [
-  "06:00 - 07:00",
-  "07:00 - 08:00",
-  "18:00 - 19:00",
-  "19:00 - 20:00",
-];
+import { useState } from 'react'
+import useServices from '../hooks/useServices'
+import usePickupSlots from '../hooks/usePickupSlots'
+import usePaymentMethods from '../hooks/usePaymentMethods'
+import ServiceCategory from './ServiceCategory'
+import PickupOptions from './PickupOptions'
+import Totals from './Totals'
+import PaymentButtons from './PaymentButtons'
+import Confirmation from './Confirmation'
 
 function BookingForm() {
-  const { services, loading } = useServices();
-  const [room, setRoom] = useState("");
-  const [slot, setSlot] = useState("");
-  const [pickup, setPickup] = useState("");
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [confirmed, setConfirmed] = useState(false);
-  const [orderId, setOrderId] = useState("");
+  const { services, loading } = useServices()
+  const slots = usePickupSlots()
+  const paymentMethods = usePaymentMethods()
 
-  // Categorize services by slug
-  const uniforms = services.filter((item) =>
-    item.slug?.toLowerCase().includes("uniform")
-  );
-  const clothing = services.filter(
-    (item) => !item.slug?.toLowerCase().includes("other")
-  );
+  const [room, setRoom] = useState('')
+  const [slot, setSlot] = useState('')
+  const [pickup, setPickup] = useState('')
+  const [selectedItems, setSelectedItems] = useState([])
+  const [confirmed, setConfirmed] = useState(false)
+  const [orderId, setOrderId] = useState('')
+
+  const uniforms = services.filter(s => s.slug.includes('uniform'))
+  const clothing = services.filter(s => !s.slug.includes('other'))
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!room || !slot || !pickup) {
-      alert("Please fill all required fields.");
-      return;
+    e.preventDefault()
+    if (!room || !slot || !pickup || selectedItems.length === 0) {
+      alert('Please complete all fields and select at least one service.')
+      return
     }
-    const id = "AMA-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-    setOrderId(id);
-    setConfirmed(true);
-  };
+
+    const id = 'AMA-' + Math.random().toString(36).slice(2, 8).toUpperCase()
+    setOrderId(id)
+    setConfirmed(true)
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -51,7 +45,6 @@ function BookingForm() {
             type="text"
             value={room}
             onChange={(e) => setRoom(e.target.value)}
-            placeholder="e.g., B-214"
             required
           />
           <span className="hint">Mandatory for pickup & delivery.</span>
@@ -64,18 +57,11 @@ function BookingForm() {
             onChange={(e) => setSlot(e.target.value)}
             required
           >
-            <option value="" disabled>
-              Select a time slot
-            </option>
-            {ADMIN_SLOTS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
+            <option value="" disabled>Select a time slot</option>
+            {slots.map(s => (
+              <option key={s.id} value={s.time}>{s.time}</option>
             ))}
           </select>
-          <span className="hint">
-            Only shows the time windows you make available.
-          </span>
         </div>
       </div>
 
@@ -100,7 +86,7 @@ function BookingForm() {
 
       <PickupOptions pickup={pickup} setPickup={setPickup} />
       <Totals selectedItems={selectedItems} slot={slot} />
-      <PaymentButtons />
+      <PaymentButtons methods={paymentMethods} />
       <div className="actions">
         <button type="submit">Submit Booking</button>
       </div>
@@ -113,7 +99,7 @@ function BookingForm() {
         />
       )}
     </form>
-  );
+  )
 }
 
-export default BookingForm;
+export default BookingForm
