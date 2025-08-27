@@ -20,12 +20,12 @@ function BookingForm() {
   const [confirmed, setConfirmed] = useState(false)
   const [orderId, setOrderId] = useState('')
 
-  // ✅ Defensive slug filtering
-  const uniforms = services.filter(s =>
-    typeof s.slug === 'string' && s.slug.toLowerCase().includes('uniform')
+  // Defensive filtering
+  const uniforms = services.filter(
+    s => typeof s.slug === 'string' && s.slug.toLowerCase().includes('uniform')
   )
-  const clothing = services.filter(s =>
-    typeof s.slug === 'string' && s.slug.toLowerCase().includes('other')
+  const clothing = services.filter(
+    s => typeof s.slug === 'string' && !s.slug.toLowerCase().includes('uniform')
   )
 
   const handleSubmit = (e) => {
@@ -38,6 +38,17 @@ function BookingForm() {
     const id = 'AMA-' + Math.random().toString(36).slice(2, 8).toUpperCase()
     setOrderId(id)
     setConfirmed(true)
+
+    // Optional: POST to backend
+    // fetch('/wp-json/booking/v1/create', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ room, slot, pickup, selectedItems, orderId: id })
+    // }).then(res => res.json()).then(data => {
+    //   console.log('Booking confirmed:', data)
+    // }).catch(err => {
+    //   console.error('Booking failed:', err)
+    // })
   }
 
   return (
