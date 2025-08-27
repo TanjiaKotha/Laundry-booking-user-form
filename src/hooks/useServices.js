@@ -1,34 +1,33 @@
-// hooks/useServices.js
 import { useEffect, useState } from 'react'
 
-export default function useServices() {
+function useServices() {
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchServices() {
-      try {
-        const res = await fetch('https://laundry-booking-user-form.vercel.app/wp-json/wp/v2/service?_embed')
-        const data = await res.json()
+    fetch('/wp-json/wp/v2/services?acf_format=standard')
+      .then(res => res.json())
+      .then(data => {
+        console.log('Raw service data:', data)
 
-        const mapped = data.map(item => ({
+        const parsed = data.map(item => ({
           id: item.id,
-          title: item.title.rendered,
-          price: item.acf?.price,
-          slug: item.acf?.slug,
-          image: item._embedded?.['wp:featuredmedia']?.[0]?.source_url || '',
+          title: item.title?.rendered || '',
+          slug: item.slug || '',
+          price: item.acf?.price ?? 0,
+          description: item.acf?.description ?? '',
         }))
 
-        setServices(mapped)
-      } catch (err) {
-        console.error('Failed to fetch services:', err)
-      } finally {
+        setServices(parsed)
         setLoading(false)
-      }
-    }
-
-    fetchServices()
+      })
+      .catch(err => {
+        console.error('Service fetch failed:', err)
+        setLoading(false)
+      })
   }, [])
 
   return { services, loading }
 }
+
+export default useServices
