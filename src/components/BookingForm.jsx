@@ -1,20 +1,18 @@
 import { useState } from 'react'
 import useServices from '../hooks/useServices'
+import usePickupSlots from '../hooks/usePickupSlots'
+import usePaymentMethods from '../hooks/usePaymentMethods'
 import ServiceCategory from './ServiceCategory'
 import PickupOptions from './PickupOptions'
 import Totals from './Totals'
 import PaymentButtons from './PaymentButtons'
 import Confirmation from './Confirmation'
 
-const ADMIN_SLOTS = [
-  '06:00 - 07:00',
-  '07:00 - 08:00',
-  '18:00 - 19:00',
-  '19:00 - 20:00',
-]
-
 function BookingForm() {
   const { services, loading } = useServices()
+  const slots = usePickupSlots()
+  const paymentMethods = usePaymentMethods()
+
   const [room, setRoom] = useState('')
   const [slot, setSlot] = useState('')
   const [pickup, setPickup] = useState('')
@@ -22,27 +20,28 @@ function BookingForm() {
   const [confirmed, setConfirmed] = useState(false)
   const [orderId, setOrderId] = useState('')
 
-  // Categorize services by slug
-  const uniforms = services.filter(item =>
-    item.slug?.toLowerCase().includes('high-vis')
+  // ✅ Defensive slug filtering
+  const uniforms = services.filter(s =>
+    typeof s.slug === 'string' && s.slug.toLowerCase().includes('uniform')
   )
-  const clothing = services.filter(item =>
-    !item.slug?.toLowerCase().includes('high-vis')
+  const clothing = services.filter(s =>
+    typeof s.slug === 'string' && s.slug.toLowerCase().includes('other')
   )
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!room || !slot || !pickup) {
-      alert('Please fill all required fields.')
+    if (!room || !slot || !pickup || selectedItems.length === 0) {
+      alert('Please complete all fields and select at least one service.')
       return
     }
+
     const id = 'AMA-' + Math.random().toString(36).slice(2, 8).toUpperCase()
     setOrderId(id)
     setConfirmed(true)
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid two">
         <div className="field">
           <label htmlFor="room">Room Number *</label>
@@ -65,11 +64,10 @@ function BookingForm() {
             required
           >
             <option value="" disabled>Select a time slot</option>
-            {ADMIN_SLOTS.map((s) => (
-              <option key={s} value={s}>{s}</option>
+            {slots.map(s => (
+              <option key={s.id} value={s.time}>{s.time}</option>
             ))}
           </select>
-          <span className="hint">Only shows the time windows you make available.</span>
         </div>
       </div>
 
@@ -94,10 +92,11 @@ function BookingForm() {
 
       <PickupOptions pickup={pickup} setPickup={setPickup} />
       <Totals selectedItems={selectedItems} slot={slot} />
-      <PaymentButtons />
+      <PaymentButtons methods={paymentMethods} />
       <div className="actions">
-        <button type="submit">Submit Booking</button>
+        <button type="submit" className="pay-btn">Submit Booking</button>
       </div>
+
       {confirmed && (
         <Confirmation
           orderId={orderId}
