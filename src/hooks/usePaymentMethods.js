@@ -19,5 +19,5 @@ export default function usePaymentMethods() {
       .catch(err => console.error('Payment method fetch failed:', err))
   }, [])
 
-  return methods
+  return methods 
 }
