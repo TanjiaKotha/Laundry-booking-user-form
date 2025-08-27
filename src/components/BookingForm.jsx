@@ -84,6 +84,7 @@ function BookingForm() {
         </>
       )}
 
+      
       <PickupOptions pickup={pickup} setPickup={setPickup} />
       <Totals selectedItems={selectedItems} slot={slot} />
       <PaymentButtons methods={paymentMethods} />
