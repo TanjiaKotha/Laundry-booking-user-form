@@ -13,7 +13,8 @@ function useServices() {
         const parsed = data.map(item => ({
           id: item.id,
           title: item.title?.rendered || '',
-          slug: item.slug || '',
+          slug: item.slug || '', // WP post slug
+          acfSlug: item.acf?.slug || '', // ACF slug for filtering
           price: item.acf?.price ?? 0,
           description: item.acf?.description ?? '',
         }))
