@@ -14,26 +14,31 @@ function ServiceCategory({ title, items, selectedItems, setSelectedItems }) {
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
         {items.map(item => {
           const isSelected = selectedItems.some(i => i.id === item.id)
-
-          // ✅ Use ACF image URL or fallback
-          const imageUrl =
-            item.acf?.image?.url || '/images/default-service.png'
+          const imageUrl = item.acf?.image?.url || '/images/default-service.png'
+          const price = item.acf?.price ?? null
+          const unit = item.acf?.unit ?? 'per item'
+          const titleText = item.title?.rendered || 'Untitled'
 
           return (
             <div
               key={item.id}
+              role="button"
+              tabIndex={0}
               className={`card ${isSelected ? 'selected' : ''}`}
               onClick={() => handleToggle(item)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') handleToggle(item)
+              }}
             >
               <img
                 src={imageUrl}
-                alt={item.title.rendered}
+                alt={titleText}
                 className="service-img"
                 loading="lazy"
               />
-              <h3 dangerouslySetInnerHTML={{ __html: item.title.rendered }} />
-              <p>{item.acf?.price ? `৳${item.acf.price}` : 'Price not set'}</p>
-              <span className="unit">{item.acf?.unit || 'per item'}</span>
+              <h3>{titleText}</h3>
+              <p>{price ? `৳${price}` : 'Price not set'}</p>
+              <span className="unit">{unit}</span>
             </div>
           )
         })}
