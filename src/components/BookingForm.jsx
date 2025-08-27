@@ -20,12 +20,12 @@ function BookingForm() {
   const [confirmed, setConfirmed] = useState(false)
   const [orderId, setOrderId] = useState('')
 
-  // Defensive filtering
+  // ✅ Filter using ACF slug
   const uniforms = services.filter(
-    s => typeof s.slug === 'string' && s.slug.toLowerCase().includes('uniform')
+    s => typeof s.acfSlug === 'string' && s.acfSlug.toLowerCase() === 'uniform'
   )
   const clothing = services.filter(
-    s => typeof s.slug === 'string' && !s.slug.toLowerCase().includes('uniform')
+    s => typeof s.acfSlug === 'string' && s.acfSlug.toLowerCase() === 'other'
   )
 
   const handleSubmit = (e) => {
@@ -81,6 +81,10 @@ function BookingForm() {
           </select>
         </div>
       </div>
+
+      {!loading && services.length === 0 && (
+        <p className="text-red-500 text-center">No services available. Please check back later.</p>
+      )}
 
       {loading ? (
         <p className="text-gray-400 text-center">Loading services...</p>
