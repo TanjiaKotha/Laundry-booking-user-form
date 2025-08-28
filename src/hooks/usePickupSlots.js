@@ -20,4 +20,3 @@ export default function usePickupSlots() {
 
   return slots
 }
- 
