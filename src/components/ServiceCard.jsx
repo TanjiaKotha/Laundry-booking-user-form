@@ -1,24 +1,33 @@
-export default function ServiceCard({ item, isSelected, onSelect }) {
-  const imageUrl = item.image || '/images/default-service.png'
-  const name = item.name || 'Unnamed Service'
-  const price = item.price ?? null
+import ServiceCard from './ServiceCard'
+
+function ServiceCategory({ title, items, selectedItems, setSelectedItems }) {
+  const handleToggle = (item) => {
+    const exists = selectedItems.find(i => i.id === item.id)
+    if (exists) {
+      setSelectedItems(selectedItems.filter(i => i.id !== item.id))
+    } else {
+      setSelectedItems([...selectedItems, item])
+    }
+  }
 
   return (
-    <label className={`card ${isSelected ? 'border-blue-500 bg-blue-950' : ''}`}>
-      <input
-        type="checkbox"
-        checked={isSelected}
-        onChange={onSelect}
-        className="hidden"
-      />
-      <div className="media">
-        <img src={imageUrl} alt={name} className="service-img" loading="lazy" />
+    <section className="category">
+      <h2>{title}</h2>
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {items.map(item => {
+          const isSelected = selectedItems.some(i => i.id === item.id)
+          return (
+            <ServiceCard
+              key={item.id}
+              item={item}
+              isSelected={isSelected}
+              onSelect={() => handleToggle(item)}
+            />
+          )
+        })}
       </div>
-      <div className="content">
-        <h4 className="text-md font-medium text-white">{name}</h4>
-        <div className="price">{price ? `৳${price}` : 'Price not set'}</div>
-      </div>
-      {isSelected && <div className="selected-badge">✓</div>}
-    </label>
+    </section>
   )
 }
+
+export default ServiceCategory
