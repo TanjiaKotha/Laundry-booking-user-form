@@ -8,17 +8,14 @@ export default function useServices() {
     fetch('https://amalaundry.com.au/wp-json/wp/v2/service?_embed')
       .then(res => res.json())
       .then(data => {
-        const parsed = data.map(item => ({
+        const formatted = data.map(item => ({
           id: item.id,
-          name: item.title?.rendered || 'Unnamed',
-          price: item.acf?.price ?? 0,
+          name: item.title.rendered,
+          price: item.acf?.price || 0,
           slug: item.acf?.slug || '',
-          image:
-            typeof item.acf?.image === 'object' && item.acf.image?.url
-              ? item.acf.image.url
-              : '/images/default-service.png',
+          image: item.acf?.image?.url || '/images/default-service.png',
         }))
-        setServices(parsed)
+        setServices(formatted)
         setLoading(false)
       })
       .catch(err => {
