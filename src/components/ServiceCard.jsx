@@ -1,33 +1,16 @@
-import ServiceCard from './ServiceCard'
-
-function ServiceCategory({ title, items, selectedItems, setSelectedItems }) {
-  const handleToggle = (item) => {
-    const exists = selectedItems.find(i => i.id === item.id)
-    if (exists) {
-      setSelectedItems(selectedItems.filter(i => i.id !== item.id))
-    } else {
-      setSelectedItems([...selectedItems, item])
-    }
-  }
-
+export default function ServiceCard({ item, isSelected, onSelect }) {
   return (
-    <section className="category">
-      <h2>{title}</h2>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {items.map(item => {
-          const isSelected = selectedItems.some(i => i.id === item.id)
-          return (
-            <ServiceCard
-              key={item.id}
-              item={item}
-              isSelected={isSelected}
-              onSelect={() => handleToggle(item)}
-            />
-          )
-        })}
+    <label
+      className={`card ${isSelected ? "border-blue-500 bg-blue-950" : ""}`}
+    >
+      <input type="checkbox" checked={isSelected} onChange={onSelect} />
+      <div className="media">
+        {item.image && <img src={item.image} alt={item.name} />}
       </div>
-    </section>
+      <div className="content">
+        <h4 className="text-md font-medium text-white">{item.name}</h4>
+        <div className="price">৳{item.price}</div>
+      </div>
+    </label>
   )
 }
-
-export default ServiceCategory
