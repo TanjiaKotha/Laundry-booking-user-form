@@ -10,7 +10,7 @@ import Confirmation from './Confirmation'
 
 function BookingForm() {
   const { services, loading } = useServices()
-  const { slots, loading: slotsLoading, error: slotsError } = usePickupSlots()
+  const slots = usePickupSlots()
   const paymentMethods = usePaymentMethods()
 
   const [room, setRoom] = useState('')
@@ -20,6 +20,7 @@ function BookingForm() {
   const [confirmed, setConfirmed] = useState(false)
   const [orderId, setOrderId] = useState('')
 
+  // This is correct. It filters the already-formatted services.
   const uniforms = services.filter(s => s.slug.includes('uniform'))
   const clothing = services.filter(s => !s.slug.includes('other'))
 
@@ -37,17 +38,17 @@ function BookingForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="grid two">
+      <div className="fields">
         <div className="field">
           <label htmlFor="room">Room Number *</label>
           <input
-            id="room"
             type="text"
+            id="room"
             value={room}
             onChange={(e) => setRoom(e.target.value)}
             required
+            placeholder="e.g., A-101"
           />
-          <span className="hint">Mandatory for pickup & delivery.</span>
         </div>
         <div className="field">
           <label htmlFor="slot">Pickup Time Slot *</label>
@@ -56,19 +57,12 @@ function BookingForm() {
             value={slot}
             onChange={(e) => setSlot(e.target.value)}
             required
-            disabled={slotsLoading || slotsError}
           >
-            <option value="" disabled>
-              {slotsLoading ? 'Loading slots...' : 'Select a time slot'}
-            </option>
+            <option value="" disabled>Select a time slot</option>
             {slots.map(s => (
               <option key={s.id} value={s.time}>{s.time}</option>
             ))}
           </select>
-          {slotsError && <p className="text-red-500 text-sm">{slotsError}</p>}
-          {!slotsLoading && slots.length === 0 && !slotsError && (
-            <p className="text-gray-500 text-sm">No active pickup slots available.</p>
-          )}
         </div>
       </div>
 
