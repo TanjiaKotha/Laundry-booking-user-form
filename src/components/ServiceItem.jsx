@@ -26,6 +26,12 @@ function ServiceItem({ item, quantity, onQuantityChange }) {
 
   return (
     <li className="service-item">
+      <img
+        src={item.image}
+        alt={item.name}
+        className="service-img"
+        loading="lazy"
+      />
       <div className="service-info">
         <h4 dangerouslySetInnerHTML={{ __html: item.name }} />
         <p className="price">৳{item.price}</p>
