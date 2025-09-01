@@ -1,43 +1,61 @@
-import { useState } from 'react'
-import useServices from '../hooks/useServices'
-import usePickupSlots from '../hooks/usePickupSlots'
-import usePaymentMethods from '../hooks/usePaymentMethods'
-import ServiceCategory from './ServiceCategory'
-import PickupOptions from './PickupOptions'
-import Totals from './Totals'
-import PaymentButtons from './PaymentButtons'
-import Confirmation from './Confirmation'
+import { useState } from 'react';
+import useServices from '../hooks/useServices';
+import usePickupSlots from '../hooks/usePickupSlots';
+import usePaymentMethods from '../hooks/usePaymentMethods';
+import ServiceCategory from './ServiceCategory';
+import PickupOptions from './PickupOptions';
+import Totals from './Totals';
+import PaymentButtons from './PaymentButtons';
+import Confirmation from './Confirmation';
 
 function BookingForm() {
-  const { services, loading } = useServices()
-  const slots = usePickupSlots()
-  const paymentMethods = usePaymentMethods()
+  const { services, loading } = useServices();
+  const slots = usePickupSlots();
+  const paymentMethods = usePaymentMethods();
 
-  const [room, setRoom] = useState('')
-  const [slot, setSlot] = useState('')
-  const [pickup, setPickup] = useState('')
-  const [selectedItems, setSelectedItems] = useState([])
-  const [confirmed, setConfirmed] = useState(false)
-  const [orderId, setOrderId] = useState('')
+  const [room, setRoom] = useState('');
+  const [slot, setSlot] = useState('');
+  const [pickup, setPickup] = useState('');
+  const [selectedItems, setSelectedItems] = useState([]); // State now holds objects with item and quantity
+  const [confirmed, setConfirmed] = useState(false);
+  const [orderId, setOrderId] = useState('');
 
-  // This is correct. It filters the already-formatted services.
-  const uniforms = services.filter(s => s.slug.includes('uniform'))
-  const clothing = services.filter(s => !s.slug.includes('other'))
+  // Filtering services based on slugs
+  const uniforms = services.filter(s => s.slug.includes('uniform'));
+  const otherClothing = services.filter(s => !s.slug.includes('other'));
+
+  const handleQuantityChange = (item, quantity) => {
+    if (quantity <= 0) {
+      setSelectedItems(selectedItems.filter(i => i.item.id !== item.id));
+    } else {
+      const exists = selectedItems.find(i => i.item.id === item.id);
+      if (exists) {
+        setSelectedItems(
+          selectedItems.map(i =>
+            i.item.id === item.id ? { ...i, quantity } : i
+          )
+        );
+      } else {
+        setSelectedItems([...selectedItems, { item, quantity }]);
+      }
+    }
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!room || !slot || !pickup || selectedItems.length === 0) {
-      alert('Please complete all fields and select at least one service.')
-      return
+      alert('Please complete all fields and select at least one service.');
+      return;
     }
 
-    const id = 'AMA-' + Math.random().toString(36).slice(2, 8).toUpperCase()
-    setOrderId(id)
-    setConfirmed(true)
-  }
+    // Placeholder for API submission to WordPress backend
+    const id = 'AMA-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+    setOrderId(id);
+    setConfirmed(true);
+  };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="booking-form" onSubmit={handleSubmit}>
       <div className="fields">
         <div className="field">
           <label htmlFor="room">Room Number *</label>
@@ -47,9 +65,10 @@ function BookingForm() {
             value={room}
             onChange={(e) => setRoom(e.target.value)}
             required
-            placeholder="e.g., A-101"
+            placeholder="e.g. 101"
           />
         </div>
+
         <div className="field">
           <label htmlFor="slot">Pickup Time Slot *</label>
           <select
@@ -74,13 +93,13 @@ function BookingForm() {
             title="Uniforms"
             items={uniforms}
             selectedItems={selectedItems}
-            setSelectedItems={setSelectedItems}
+            onQuantityChange={handleQuantityChange}
           />
           <ServiceCategory
             title="Other Clothing"
-            items={clothing}
+            items={otherClothing}
             selectedItems={selectedItems}
-            setSelectedItems={setSelectedItems}
+            onQuantityChange={handleQuantityChange}
           />
         </>
       )}
@@ -100,7 +119,7 @@ function BookingForm() {
         />
       )}
     </form>
-  )
+  );
 }
 
-export default BookingForm
+export default BookingForm;
