@@ -1,11 +1,13 @@
 function Totals({ selectedItems, slot }) {
-  const total = selectedItems.reduce((sum, item) => sum + item.price, 0);
+  const total = selectedItems.reduce((sum, entry) => {
+    return sum + (entry.item.price * entry.quantity);
+  }, 0);
 
   return (
     <div className="totals">
       <div>
         <strong>Selected Service:</strong>{" "}
-        {selectedItems.map((i) => i.name).join(", ") || "None"}
+        {selectedItems.map((entry) => `${entry.item.name} (x${entry.quantity})`).join(", ") || "None"}
       </div>
       <div>
         <strong>Pickup Slot:</strong> {slot || "—"}
