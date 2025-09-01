@@ -1,33 +1,24 @@
-import ServiceCard from './ServiceCard'
+import ServiceItem from './ServiceItem';
 
-function ServiceCategory({ title, items, selectedItems, setSelectedItems }) {
-  const handleToggle = (item) => {
-    const exists = selectedItems.find(i => i.id === item.id)
-    if (exists) {
-      setSelectedItems(selectedItems.filter(i => i.id !== item.id))
-    } else {
-      setSelectedItems([...selectedItems, item])
-    }
-  }
-
+function ServiceCategory({ title, items, selectedItems, onQuantityChange }) {
   return (
     <section className="category">
       <h2>{title}</h2>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <ul className="service-list">
         {items.map(item => {
-          const isSelected = selectedItems.some(i => i.id === item.id)
+          const selectedItem = selectedItems.find(i => i.item.id === item.id) || { quantity: 0 };
           return (
-            <ServiceCard
+            <ServiceItem
               key={item.id}
               item={item}
-              isSelected={isSelected}
-              onSelect={() => handleToggle(item)}
+              quantity={selectedItem.quantity}
+              onQuantityChange={onQuantityChange}
             />
-          )
+          );
         })}
-      </div>
+      </ul>
     </section>
-  )
+  );
 }
 
-export default ServiceCategory
+export default ServiceCategory;
