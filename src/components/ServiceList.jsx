@@ -4,7 +4,8 @@ import { filterBySlug } from "../utils/filterBySlug";
 
 export default function ServiceList() {
   const { services, loading } = useServices();
-  const uniforms = filterBySlug(services, "high-vis");
+  // Corrected to use the "uniform" slug as per your instructions.
+  const uniforms = filterBySlug(services, "uniform");
 
   if (loading) return <p>Loading services...</p>;
 
