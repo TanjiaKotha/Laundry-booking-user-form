@@ -4,9 +4,8 @@ import useServices from "../hooks/useServices";
 export default function ServiceList() {
   const { services, loading } = useServices();
 
-  // Use the same robust logic to correctly identify uniforms
-  const otherClothingSlugs = ['underwear', 'sportswear'];
-  const uniforms = services.filter(s => s.slug && !otherClothingSlugs.includes(s.slug));
+  // Use the name-based filter to reliably find uniforms.
+  const uniforms = services.filter(s => s.name && s.name.toLowerCase().includes('high-vis'));
 
   if (loading) return <p>Loading services...</p>;
 
