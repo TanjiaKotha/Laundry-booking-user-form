@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useServices from '../hooks/useServices';
 import usePickupSlots from '../hooks/usePickupSlots';
 import usePaymentMethods from '../hooks/usePaymentMethods';
-import useOrderSubmission from '../hooks/useOrderSubmission'; // 👈 Import the new hook
+import useOrderSubmission from '../hooks/useOrderSubmission';
 import ServiceCategory from './ServiceCategory';
 import PickupOptions from './PickupOptions';
 import Totals from './Totals';
@@ -20,7 +20,7 @@ function BookingForm() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
   
-  // 👈 Use the new custom hook to handle submission logic
+  // Use the new custom hook to handle submission logic
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
   const uniforms = services.filter(s => s.slug.includes('uniform'));
@@ -52,7 +52,7 @@ function BookingForm() {
       },
     };
 
-    // 👈 Call the new hook's function to handle the API submission
+    // Call the new hook's function to handle the API submission
     await submitOrder(bookingPayload);
   };
 
