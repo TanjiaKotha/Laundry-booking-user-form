@@ -21,13 +21,13 @@ function BookingForm() {
 
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  // ✅ DEFINITIVE FIX: Based on the actual slug data from your console.
-  // First, we explicitly define the slugs for "Other Clothing".
-  const otherClothingSlugs = ['underwear', 'sportswear'];
-  const other = services.filter(s => s.slug && otherClothingSlugs.includes(s.slug));
+  // ✅ FINAL FIX: Logic based on the ACTUAL data from the console log.
+  // Uniforms are any service with "high-vis" in its name. This is the most reliable pattern.
+  const uniforms = services.filter(s => s.name && s.name.toLowerCase().includes('high-vis'));
   
-  // Then, "Uniforms" are simply all the services that are NOT in the "Other Clothing" list.
-  const uniforms = services.filter(s => s.slug && !otherClothingSlugs.includes(s.slug));
+  // Other Clothing is everything else.
+  const other = services.filter(s => s.name && !s.name.toLowerCase().includes('high-vis'));
+  
 
   const total = useMemo(() =>
     selectedItems.reduce((sum, entry) => sum + (entry.item.price * entry.quantity), 0),
