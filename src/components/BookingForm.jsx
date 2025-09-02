@@ -20,18 +20,44 @@ function BookingForm() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
   
-  // Use the new custom hook to handle submission logic
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
   const uniforms = services.filter(s => s.slug.includes('uniform'));
   const clothing = services.filter(s => !s.slug.includes('uniform'));
   
-  // Use a useEffect to handle the response from the API call
   useEffect(() => {
     if (orderData) {
       setConfirmed(true);
     }
   }, [orderData]);
+
+  // --- ✅ FIX 1: Added handler to manage state updates from child components ---
+  const handleQuantityChange = (item, quantity) => {
+    setSelectedItems(prevItems => {
+      const existingItemIndex = prevItems.findIndex(i => i.item.id === item.id);
+
+      // If item already exists in the cart
+      if (existingItemIndex > -1) {
+        const updatedItems = [...prevItems];
+        if (quantity > 0) {
+          // Update its quantity
+          updatedItems[existingItemIndex].quantity = quantity;
+        } else {
+          // Remove it if quantity becomes 0
+          updatedItems.splice(existingItemIndex, 1);
+        }
+        return updatedItems;
+      }
+      
+      // If item is new and quantity is > 0, add it
+      if (quantity > 0) {
+        return [...prevItems, { item, quantity }];
+      }
+      
+      // Otherwise, no change
+      return prevItems;
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,11 +74,11 @@ function BookingForm() {
         room_number: room,
         pickup_slot: slot,
         pickup_method: pickup,
-        services: selectedItems.map(item => item.name).join(', '),
+        // --- ✅ FIX 2: Create a detailed services payload with quantities ---
+        services: selectedItems.map(entry => `${entry.item.name} (x${entry.quantity})`).join(', '),
       },
     };
 
-    // Call the new hook's function to handle the API submission
     await submitOrder(bookingPayload);
   };
 
@@ -100,17 +126,18 @@ function BookingForm() {
         <p className="text-gray-400 text-center">Loading services...</p>
       ) : (
         <>
+          {/* --- ✅ FIX 3: Changed prop name to `onQuantityChange` --- */}
           <ServiceCategory
             title="Uniforms"
             items={uniforms}
             selectedItems={selectedItems}
-            setSelectedItems={setSelectedItems}
+            onQuantityChange={handleQuantityChange}
           />
           <ServiceCategory
             title="Other Clothing"
             items={clothing}
             selectedItems={selectedItems}
-            setSelectedItems={setSelectedItems}
+            onQuantityChange={handleQuantityChange}
           />
         </>
       )}
