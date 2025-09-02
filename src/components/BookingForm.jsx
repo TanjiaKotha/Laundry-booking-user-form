@@ -4,9 +4,6 @@ import { useState, useEffect, useMemo } from 'react';
 import useServices from '../hooks/useServices';
 import usePickupSlots from '../hooks/usePickupSlots';
 import useOrderSubmission from '../hooks/useOrderSubmission';
-// ❌ No longer need ServiceCard
-// import ServiceCard from './ServiceCard';
-// ✅ Import ServiceCategory instead
 import ServiceCategory from './ServiceCategory';
 import PickupOptions from './PickupOptions';
 import Totals from './Totals';
@@ -25,8 +22,9 @@ function BookingForm() {
 
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  const uniforms = services.filter(s => s.slug && s.slug.includes('cloth'));
-  const other = services.filter(s => s.slug && !s.slug.includes('uniform'));
+  // Corrected filtering logic: "uniform" for uniforms, "cloth" for other clothing.
+  const uniforms = services.filter(s => s.slug && s.slug.includes('uniform'));
+  const other = services.filter(s => s.slug && s.slug.includes('cloth'));
 
   const total = useMemo(() =>
     selectedItems.reduce((sum, entry) => sum + (entry.item.price * entry.quantity), 0),
@@ -39,7 +37,6 @@ function BookingForm() {
     }
   }, [orderData]);
 
-  // ✅ NEW: This function handles adding, updating, and removing items from the cart.
   const handleQuantityChange = (itemToUpdate, newQuantity) => {
     setSelectedItems(prevItems => {
       const existingEntryIndex = prevItems.findIndex(entry => entry.item.id === itemToUpdate.id);
@@ -110,16 +107,16 @@ function BookingForm() {
 
       {servicesLoading ? <p className="text-center my-8">Loading services...</p> : (
         <>
-          {/* ✅ RENDER ServiceCategory instead of ServiceCard */}
+          {/* Correctly passing the filtered arrays to the respective components */}
          <ServiceCategory
             title="Uniform"
-            items={other}
+            items={uniforms}
             selectedItems={selectedItems}
             onQuantityChange={handleQuantityChange}
           />
           <ServiceCategory
             title="Other Clothing"
-            items={uniforms}
+            items={other}
             selectedItems={selectedItems}
             onQuantityChange={handleQuantityChange}
           />
