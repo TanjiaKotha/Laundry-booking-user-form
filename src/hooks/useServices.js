@@ -50,7 +50,8 @@ export default function useServices() {
           id: item.id,
           name: item.title.rendered,
           price: item.acf?.price || 0,
-          slug: item.slug || '',
+          // ✅ FIX: Use the custom slug from the ACF field (item.acf.slug)
+          slug: item.acf?.slug || '',
           image: imageUrls[index], // Use the fetched image URL
         }));
         
