@@ -1,7 +1,14 @@
-import { useState } from 'react';
+// src/components/ServiceItem.jsx
+
+import { useState, useEffect } from 'react';
 
 function ServiceItem({ item, quantity, onQuantityChange }) {
   const [currentQuantity, setCurrentQuantity] = useState(quantity);
+
+  // ✅ This effect syncs the component if the item is removed from the "Totals" box
+  useEffect(() => {
+    setCurrentQuantity(quantity);
+  }, [quantity]);
 
   const handleIncrement = () => {
     const newQuantity = currentQuantity + 1;
@@ -24,8 +31,9 @@ function ServiceItem({ item, quantity, onQuantityChange }) {
     onQuantityChange(item, newQuantity);
   };
 
+  // ✅ Replaced the <li> with a card structure
   return (
-    <li className="service-item">
+    <div className="service-card-item">
       <img
         src={item.image}
         alt={item.name}
@@ -46,7 +54,7 @@ function ServiceItem({ item, quantity, onQuantityChange }) {
         />
         <button type="button" onClick={handleIncrement}>+</button>
       </div>
-    </li>
+    </div>
   );
 }
 
