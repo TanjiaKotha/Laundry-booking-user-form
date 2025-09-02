@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useServices from '../hooks/useServices';
 import usePickupSlots from '../hooks/usePickupSlots';
 import usePaymentMethods from '../hooks/usePaymentMethods';
+import useOrderSubmission from '../hooks/useOrderSubmission'; // 👈 Import the new hook
 import ServiceCategory from './ServiceCategory';
 import PickupOptions from './PickupOptions';
 import Totals from './Totals';
@@ -9,54 +10,66 @@ import PaymentButtons from './PaymentButtons';
 import Confirmation from './Confirmation';
 
 function BookingForm() {
-  const { services, loading } = useServices();
+  const { services, loading: servicesLoading } = useServices();
   const slots = usePickupSlots();
   const paymentMethods = usePaymentMethods();
 
   const [room, setRoom] = useState('');
   const [slot, setSlot] = useState('');
   const [pickup, setPickup] = useState('');
-  const [selectedItems, setSelectedItems] = useState([]); // State now holds objects with item and quantity
+  const [selectedItems, setSelectedItems] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
-  const [orderId, setOrderId] = useState('');
+  
+  // 👈 Use the new custom hook to handle submission logic
+  const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  // Filtering services based on slugs
   const uniforms = services.filter(s => s.slug.includes('uniform'));
-  const otherClothing = services.filter(s => !s.slug.includes('other'));
-
-  const handleQuantityChange = (item, quantity) => {
-    if (quantity <= 0) {
-      setSelectedItems(selectedItems.filter(i => i.item.id !== item.id));
-    } else {
-      const exists = selectedItems.find(i => i.item.id === item.id);
-      if (exists) {
-        setSelectedItems(
-          selectedItems.map(i =>
-            i.item.id === item.id ? { ...i, quantity } : i
-          )
-        );
-      } else {
-        setSelectedItems([...selectedItems, { item, quantity }]);
-      }
+  const clothing = services.filter(s => !s.slug.includes('uniform'));
+  
+  // Use a useEffect to handle the response from the API call
+  useEffect(() => {
+    if (orderData) {
+      setConfirmed(true);
     }
-  };
+  }, [orderData]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!room || !slot || !pickup || selectedItems.length === 0) {
       alert('Please complete all fields and select at least one service.');
       return;
     }
 
-    // Placeholder for API submission to WordPress backend
-    const id = 'AMA-' + Math.random().toString(36).slice(2, 8).toUpperCase();
-    setOrderId(id);
-    setConfirmed(true);
+    const bookingPayload = {
+      title: 'Laundry Order for Room ' + room,
+      status: 'pending',
+      fields: {
+        room_number: room,
+        pickup_slot: slot,
+        pickup_method: pickup,
+        services: selectedItems.map(item => item.name).join(', '),
+      },
+    };
+
+    // 👈 Call the new hook's function to handle the API submission
+    await submitOrder(bookingPayload);
   };
 
+  if (confirmed) {
+    return (
+      <Confirmation
+        orderId={orderData.id}
+        room={room}
+        slot={slot}
+        pickup={pickup}
+      />
+    );
+  }
+
   return (
-    <form className="booking-form" onSubmit={handleSubmit}>
-      <div className="fields">
+    <form onSubmit={handleSubmit} className="booking-form">
+      <div className="form-row">
         <div className="field">
           <label htmlFor="room">Room Number *</label>
           <input
@@ -65,10 +78,8 @@ function BookingForm() {
             value={room}
             onChange={(e) => setRoom(e.target.value)}
             required
-            placeholder="e.g. 101"
           />
         </div>
-
         <div className="field">
           <label htmlFor="slot">Pickup Time Slot *</label>
           <select
@@ -85,7 +96,7 @@ function BookingForm() {
         </div>
       </div>
 
-      {loading ? (
+      {servicesLoading ? (
         <p className="text-gray-400 text-center">Loading services...</p>
       ) : (
         <>
@@ -93,13 +104,13 @@ function BookingForm() {
             title="Uniforms"
             items={uniforms}
             selectedItems={selectedItems}
-            onQuantityChange={handleQuantityChange}
+            setSelectedItems={setSelectedItems}
           />
           <ServiceCategory
             title="Other Clothing"
-            items={otherClothing}
+            items={clothing}
             selectedItems={selectedItems}
-            onQuantityChange={handleQuantityChange}
+            setSelectedItems={setSelectedItems}
           />
         </>
       )}
@@ -107,17 +118,14 @@ function BookingForm() {
       <PickupOptions pickup={pickup} setPickup={setPickup} />
       <Totals selectedItems={selectedItems} slot={slot} />
       <PaymentButtons methods={paymentMethods} />
+      
       <div className="actions">
-        <button type="submit">Submit Booking</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Submit Booking'}
+        </button>
       </div>
-      {confirmed && (
-        <Confirmation
-          orderId={orderId}
-          room={room}
-          slot={slot}
-          pickup={pickup}
-        />
-      )}
+      
+      {error && <p className="text-red-500 text-center mt-4">{error}</p>}
     </form>
   );
 }
