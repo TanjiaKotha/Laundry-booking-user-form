@@ -7,42 +7,32 @@ export default function useServices() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
+        // The '?_embed' is crucial. It includes linked data like featured images.
         const response = await fetch('https://amalaundry.com.au/wp-json/wp/v2/service?_embed')
         if (!response.ok) {
           throw new Error('Network response was not ok')
         }
         const data = await response.json()
 
-        const formattedPromises = data.map(async item => {
-          let imageUrl = '/images/default-service.png' // Fallback image
-
-          if (item.acf?.image) {
-            try {
-              const mediaResponse = await fetch(`https://amalaundry.com.au/wp-json/wp/v2/media/${item.acf.image}`)
-              if (mediaResponse.ok) {
-                const mediaData = await mediaResponse.json()
-                // Use the full URL from the media data
-                imageUrl = mediaData.source_url || imageUrl
-              }
-            } catch (mediaError) {
-              console.error('Failed to fetch media:', mediaError)
-            }
-          }
+        // --- ✅ FIX: Simplified and optimized image URL retrieval. No more extra fetches! ---
+        const formattedServices = data.map(item => {
+          // Safely access the embedded featured media URL
+          const featuredMedia = item._embedded?.['wp:featuredmedia']?.[0];
+          const imageUrl = featuredMedia?.source_url || '/images/default-service.png'; // Fallback image
 
           return {
             id: item.id,
             name: item.title.rendered,
             price: item.acf?.price || 0,
-            slug: item.acf?.slug || '',
-            image: imageUrl, // Now contains the correct URL
+            slug: item.slug || '', // The post slug is on the root item, not ACF
+            image: imageUrl,
           }
         })
 
-        const formattedServices = await Promise.all(formattedPromises)
         setServices(formattedServices)
-        setLoading(false)
       } catch (error) {
         console.error('Service fetch failed:', error)
+      } finally {
         setLoading(false)
       }
     }
