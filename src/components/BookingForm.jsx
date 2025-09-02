@@ -16,15 +16,16 @@ function BookingForm() {
   const [room, setRoom] = useState('');
   const [slot, setSlot] = useState('');
   const [pickup, setPickup] = useState('');
-  // The shape of this state is an array of objects: { item: {...}, quantity: number }
   const [selectedItems, setSelectedItems] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
 
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  // Corrected filtering logic: "uniform" for uniforms, "cloth" for other clothing.
-  const uniforms = services.filter(s => s.slug && s.slug.includes('uniform'));
-  const other = services.filter(s => s.slug && s.slug.includes('cloth'));
+  // ✅ FINAL FIX: Define uniforms as items with "cloth" in the slug,
+  // and other items as everything that does NOT have "cloth" in the slug.
+  // This is based on the original code which showed items successfully.
+  const uniforms = services.filter(s => s.slug && s.slug.includes('cloth'));
+  const other = services.filter(s => s.slug && !s.slug.includes('cloth'));
 
   const total = useMemo(() =>
     selectedItems.reduce((sum, entry) => sum + (entry.item.price * entry.quantity), 0),
@@ -42,17 +43,14 @@ function BookingForm() {
       const existingEntryIndex = prevItems.findIndex(entry => entry.item.id === itemToUpdate.id);
       const newItems = [...prevItems];
 
-      // If quantity is 0 or less, remove the item
       if (newQuantity <= 0) {
         if (existingEntryIndex > -1) {
           newItems.splice(existingEntryIndex, 1);
         }
       } else {
-        // If item exists, update its quantity
         if (existingEntryIndex > -1) {
           newItems[existingEntryIndex] = { ...newItems[existingEntryIndex], quantity: newQuantity };
         } else {
-          // If item doesn't exist, add it to the cart
           newItems.push({ item: itemToUpdate, quantity: newQuantity });
         }
       }
@@ -107,7 +105,7 @@ function BookingForm() {
 
       {servicesLoading ? <p className="text-center my-8">Loading services...</p> : (
         <>
-          {/* Correctly passing the filtered arrays to the respective components */}
+          {/* ✅ FINAL FIX: Pass the corrected arrays to the correct categories. */}
          <ServiceCategory
             title="Uniform"
             items={uniforms}
