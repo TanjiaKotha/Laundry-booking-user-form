@@ -10,7 +10,8 @@ import PickupOptions from './PickupOptions';
 import Totals from './Totals';
 import PaymentButtons from './PaymentButtons';
 import Confirmation from './Confirmation';
-import Header from './Header';
+// ❌ Header import is no longer needed here
+// import Header from './Header'; 
 
 function BookingForm() {
   const { services, loading: servicesLoading } = useServices();
@@ -31,7 +32,6 @@ function BookingForm() {
   useEffect(() => {
     if (orderData) {
       setConfirmed(true);
-      // ✅ The inline style manipulation has been removed from here.
     }
   }, [orderData]);
   
@@ -66,70 +66,68 @@ function BookingForm() {
   };
 
   return (
-    <div className="wrap">
-      <Header />
-      <form onSubmit={handleSubmit}>
-        <div className="grid two">
-          <div className="field">
-            <label htmlFor="room">Room Number *</label>
-            <input type="text" id="room" value={room} onChange={(e) => setRoom(e.target.value)} required />
+    // The wrap div is in App.jsx, so it's removed from here.
+    // ❌ The <Header /> component is removed from here.
+    <form onSubmit={handleSubmit}>
+      <div className="grid two">
+        <div className="field">
+          <label htmlFor="room">Room Number *</label>
+          <input type="text" id="room" value={room} onChange={(e) => setRoom(e.target.value)} required />
+        </div>
+        <div className="field">
+          <label htmlFor="slot">Pickup Time Slot *</label>
+          <select id="slot" value={slot} onChange={(e) => setSlot(e.target.value)} required>
+            <option value="" disabled>Select a time slot</option>
+            {slots.map(s => <option key={s.id} value={s.time}>{s.time}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {servicesLoading ? <p className="text-center my-8">Loading services...</p> : (
+        <>
+          <div className="service-category">
+            <h3>Uniforms</h3>
+            {uniforms.map(item => (
+              <ServiceCard
+                key={item.id}
+                item={item}
+                isSelected={selectedItems.some(i => i.id === item.id)}
+                onSelect={() => handleServiceSelect(item)}
+              />
+            ))}
           </div>
-          <div className="field">
-            <label htmlFor="slot">Pickup Time Slot *</label>
-            <select id="slot" value={slot} onChange={(e) => setSlot(e.target.value)} required>
-              <option value="" disabled>Select a time slot</option>
-              {slots.map(s => <option key={s.id} value={s.time}>{s.time}</option>)}
-            </select>
+          <div className="service-category">
+            <h3>Other Clothing</h3>
+            {clothing.map(item => (
+              <ServiceCard
+                key={item.id}
+                item={item}
+                isSelected={selectedItems.some(i => i.id === item.id)}
+                onSelect={() => handleServiceSelect(item)}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      <div className="grid two mt-6">
+        <PickupOptions pickup={pickup} setPickup={setPickup} />
+        <div className="grid gap-4">
+          <Totals selectedItems={selectedItems} slot={slot} />
+          <div className="actions">
+            <button type="submit" className="pay-btn alt w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting...' : 'Submit Booking'}
+            </button>
           </div>
         </div>
+      </div>
 
-        {servicesLoading ? <p className="text-center my-8">Loading services...</p> : (
-          <>
-            <div className="service-category">
-              <h3>Uniforms</h3>
-              {uniforms.map(item => (
-                <ServiceCard
-                  key={item.id}
-                  item={item}
-                  isSelected={selectedItems.some(i => i.id === item.id)}
-                  onSelect={() => handleServiceSelect(item)}
-                />
-              ))}
-            </div>
-            <div className="service-category">
-              <h3>Other Clothing</h3>
-              {clothing.map(item => (
-                <ServiceCard
-                  key={item.id}
-                  item={item}
-                  isSelected={selectedItems.some(i => i.id === item.id)}
-                  onSelect={() => handleServiceSelect(item)}
-                />
-              ))}
-            </div>
-          </>
-        )}
-
-        <div className="grid two mt-6">
-          <PickupOptions pickup={pickup} setPickup={setPickup} />
-          <div className="grid gap-4">
-            <Totals selectedItems={selectedItems} slot={slot} />
-            <div className="actions">
-              <button type="submit" className="pay-btn alt w-full" disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Submit Booking'}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
-        
-        {/* ✅ The 'active' class is now added conditionally based on state */}
-        <div className={`confirm ${confirmed ? 'active' : ''}`}>
-          <Confirmation orderId={orderData?.id} room={room} slot={slot} pickup={pickup} />
-        </div>
-      </form>
-    </div>
+      {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+      
+      <div className={`confirm ${confirmed ? 'active' : ''}`}>
+        <Confirmation orderId={orderData?.id} room={room} slot={slot} pickup={pickup} />
+      </div>
+    </form>
   );
 }
 
