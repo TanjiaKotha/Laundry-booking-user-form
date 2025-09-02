@@ -1,18 +1,19 @@
 // src/components/BookingForm.jsx
 
 import { useState, useEffect } from 'react';
-import useServices from '../hooks/useServices'; // Re-enabled
+import useServices from '../hooks/useServices';
 import usePickupSlots from '../hooks/usePickupSlots';
 import usePaymentMethods from '../hooks/usePaymentMethods';
 import useOrderSubmission from '../hooks/useOrderSubmission';
-import ServiceGrid from './ServiceGrid'; // <-- Use new grid component
+import ServiceCard from './ServiceCard';
 import PickupOptions from './PickupOptions';
 import Totals from './Totals';
 import PaymentButtons from './PaymentButtons';
 import Confirmation from './Confirmation';
+import Header from './Header';
 
 function BookingForm() {
-  const { services, loading: servicesLoading } = useServices(); // Re-enabled
+  const { services, loading: servicesLoading } = useServices();
   const slots = usePickupSlots();
   const paymentMethods = usePaymentMethods();
 
@@ -24,38 +25,27 @@ function BookingForm() {
   
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  const uniforms = services.filter(s => s.slug.includes('uniform'));
-  const clothing = services.filter(s => !s.slug.includes('uniform'));
-  
+  const uniforms = services.filter(s => s.slug && s.slug.includes('uniform'));
+  const clothing = services.filter(s => s.slug && !s.slug.includes('uniform'));
+
   useEffect(() => {
     if (orderData) {
       setConfirmed(true);
+      // ✅ The inline style manipulation has been removed from here.
     }
   }, [orderData]);
-
-  // ✅ New handler for the "Add to Cart" button in the cards
-  const handleAddToCart = (itemToAdd, quantity) => {
-    setSelectedItems(prevItems => {
-      const newItems = [...prevItems];
-      const existingItemIndex = newItems.findIndex(i => i.item.id === itemToAdd.id);
-      
-      if (existingItemIndex > -1) {
-        // If item already exists, just update its quantity
-        newItems[existingItemIndex].quantity = quantity;
-      } else {
-        // Otherwise, add it as a new item
-        newItems.push({ item: itemToAdd, quantity: quantity });
-      }
-      return newItems;
-    });
-    alert(`${quantity} x ${itemToAdd.name} has been added/updated in your selections!`);
-  };
-
-  // ✅ New handler to remove an item from the Totals summary
-  const handleRemoveItem = (itemIdToRemove) => {
-    setSelectedItems(prevItems => prevItems.filter(i => i.item.id !== itemIdToRemove));
-  };
   
+  const handleServiceSelect = (itemToToggle) => {
+    setSelectedItems(prevSelectedItems => {
+      const isAlreadySelected = prevSelectedItems.some(item => item.id === itemToToggle.id);
+      if (isAlreadySelected) {
+        return prevSelectedItems.filter(item => item.id !== itemToToggle.id);
+      } else {
+        return [...prevSelectedItems, itemToToggle];
+      }
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!room || !slot || !pickup || selectedItems.length === 0) {
@@ -69,60 +59,77 @@ function BookingForm() {
         room_number: room,
         pickup_slot: slot,
         pickup_method: pickup,
-        services: selectedItems.map(entry => `${entry.item.name} (x${entry.quantity})`).join(', '),
+        services: selectedItems.map(item => item.name).join(', '),
       },
     };
     await submitOrder(bookingPayload);
   };
 
-  if (confirmed) {
-    return (
-      <Confirmation orderId={orderData.id} room={room} slot={slot} pickup={pickup} />
-    );
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="booking-form">
-      {/* Room Number and Pickup Time Slot fields remain the same */}
-      <div className="form-row">
-        {/* ... */}
-      </div>
+    <div className="wrap">
+      <Header />
+      <form onSubmit={handleSubmit}>
+        <div className="grid two">
+          <div className="field">
+            <label htmlFor="room">Room Number *</label>
+            <input type="text" id="room" value={room} onChange={(e) => setRoom(e.target.value)} required />
+          </div>
+          <div className="field">
+            <label htmlFor="slot">Pickup Time Slot *</label>
+            <select id="slot" value={slot} onChange={(e) => setSlot(e.target.value)} required>
+              <option value="" disabled>Select a time slot</option>
+              {slots.map(s => <option key={s.id} value={s.time}>{s.time}</option>)}
+            </select>
+          </div>
+        </div>
 
-      {servicesLoading ? (
-        <p className="text-gray-400 text-center">Loading services...</p>
-      ) : (
-        <>
-          {/* ✅ Using the new ServiceGrid component */}
-          <ServiceGrid
-            title="Uniform"
-            items={uniforms}
-            selectedItems={selectedItems}
-            onAddToCart={handleAddToCart}
-          />
-          <ServiceGrid
-            title="Other clothing"
-            items={clothing}
-            selectedItems={selectedItems}
-            onAddToCart={handleAddToCart}
-          />
-        </>
-      )}
+        {servicesLoading ? <p className="text-center my-8">Loading services...</p> : (
+          <>
+            <div className="service-category">
+              <h3>Uniforms</h3>
+              {uniforms.map(item => (
+                <ServiceCard
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedItems.some(i => i.id === item.id)}
+                  onSelect={() => handleServiceSelect(item)}
+                />
+              ))}
+            </div>
+            <div className="service-category">
+              <h3>Other Clothing</h3>
+              {clothing.map(item => (
+                <ServiceCard
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedItems.some(i => i.id === item.id)}
+                  onSelect={() => handleServiceSelect(item)}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
-      <PickupOptions pickup={pickup} setPickup={setPickup} />
-      
-      {/* ✅ Pass the new remove handler to Totals */}
-      <Totals selectedItems={selectedItems} slot={slot} onRemoveItem={handleRemoveItem} />
-      
-      <PaymentButtons methods={paymentMethods} />
-      
-      <div className="actions">
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Submitting...' : 'Submit Booking'}
-        </button>
-      </div>
-      
-      {error && <p className="text-red-500 text-center mt-4">{error}</p>}
-    </form>
+        <div className="grid two mt-6">
+          <PickupOptions pickup={pickup} setPickup={setPickup} />
+          <div className="grid gap-4">
+            <Totals selectedItems={selectedItems} slot={slot} />
+            <div className="actions">
+              <button type="submit" className="pay-btn alt w-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Submitting...' : 'Submit Booking'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+        
+        {/* ✅ The 'active' class is now added conditionally based on state */}
+        <div className={`confirm ${confirmed ? 'active' : ''}`}>
+          <Confirmation orderId={orderData?.id} room={room} slot={slot} pickup={pickup} />
+        </div>
+      </form>
+    </div>
   );
 }
 
