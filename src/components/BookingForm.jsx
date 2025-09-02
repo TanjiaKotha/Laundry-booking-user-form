@@ -118,7 +118,7 @@ function BookingForm() {
             onQuantityChange={handleQuantityChange}
           />
           <ServiceCategory
-            title="Other Clothing"
+            title="Uniform"
             items={other}
             selectedItems={selectedItems}
             onQuantityChange={handleQuantityChange}
