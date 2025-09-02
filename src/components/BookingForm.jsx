@@ -21,7 +21,6 @@ function BookingForm() {
 
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  // ✅ FIX: Filter using the correct "uniform" and "cloth" slugs.
   const uniforms = services.filter(s => s.slug === 'uniform');
   const other = services.filter(s => s.slug === 'cloth');
 
@@ -66,19 +65,32 @@ function BookingForm() {
       alert('Please complete all fields and select at least one service.');
       return;
     }
-    const servicesPayload = selectedItems.map(entry => ({
+    
+    // Create a detailed payload for storing as a JSON string
+    const servicesDetailsPayload = selectedItems.map(entry => ({
+      id: entry.item.id,
       name: entry.item.name,
       quantity: entry.quantity,
       price: entry.item.price,
     }));
+
+    // Find the full slot object to get its time string for display/reference
+    const selectedSlotObject = slots.find(s => s.id == slot);
+    const selectedSlotTime = selectedSlotObject ? selectedSlotObject.time : '';
+
+
     const bookingPayload = {
       title: `Laundry Order for Room ${room}`,
       status: 'pending',
       fields: {
         room_number: room,
-        pickup_slot: slot,
+        // Send the slot ID and the original time string separately
+        slot_id: slot, // This is now the ID
+        pickup_slot: selectedSlotTime, // Keep the original time string
         pickup_method: pickup,
-        services: JSON.stringify(servicesPayload),
+        // Keep the detailed JSON, but also prepare a simple array of IDs
+        services: JSON.stringify(servicesDetailsPayload), 
+        service_id: selectedItems.map(entry => entry.item.id), // Send just the IDs
         total_price: total.toFixed(2),
       },
     };
@@ -94,9 +106,10 @@ function BookingForm() {
         </div>
         <div className="field">
           <label htmlFor="slot">Pickup Time Slot *</label>
+          {/* The value of the option is now s.id */}
           <select id="slot" value={slot} onChange={(e) => setSlot(e.target.value)} required>
             <option value="" disabled>Select a time slot</option>
-            {slots.map(s => <option key={s.id} value={s.time}>{s.time}</option>)}
+            {slots.map(s => <option key={s.id} value={s.id}>{s.time}</option>)}
           </select>
         </div>
       </div>
@@ -124,7 +137,7 @@ function BookingForm() {
           <Totals 
             selectedItems={selectedItems} 
             room={room} 
-            slot={slot} 
+            slot={slots.find(s => s.id == slot)?.time || ''} // Find time from ID for display
             pickup={pickup} 
             onRemoveItem={handleRemoveItem} 
           />
@@ -142,7 +155,7 @@ function BookingForm() {
         <Confirmation
           orderId={orderData?.id}
           room={room}
-          slot={slot}
+          slot={slots.find(s => s.id == slot)?.time || ''} // Find time from ID for display
           pickup={pickup}
           selectedItems={selectedItems}
           total={total}
