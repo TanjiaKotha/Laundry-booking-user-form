@@ -1,6 +1,6 @@
 // src/components/Totals.jsx
 
-function Totals({ selectedItems, slot, onRemoveItem }) {
+function Totals({ selectedItems, room, slot, pickup, onRemoveItem }) {
   const total = selectedItems.reduce((sum, entry) => {
     return sum + (entry.item.price * entry.quantity);
   }, 0);
@@ -13,7 +13,6 @@ function Totals({ selectedItems, slot, onRemoveItem }) {
           selectedItems.map((entry) => (
             <li key={entry.item.id}>
               <span>{`${entry.item.name} (x${entry.quantity})`} - ৳${entry.item.price * entry.quantity}</span>
-              {/* ✅ Added remove button */}
               <button type="button" className="remove-item-btn" onClick={() => onRemoveItem(entry.item.id)}>
                 Remove
               </button>
@@ -25,7 +24,13 @@ function Totals({ selectedItems, slot, onRemoveItem }) {
       </ul>
       <hr />
       <div className="totals-summary">
+        <strong>Room Number:</strong> {room || "—"}
+      </div>
+      <div className="totals-summary">
         <strong>Pickup Slot:</strong> {slot || "—"}
+      </div>
+      <div className="totals-summary">
+        <strong>Pickup Method:</strong> {pickup ? pickup.charAt(0).toUpperCase() + pickup.slice(1) : "—"}
       </div>
       <div className="totals-summary">
         <strong>Total Price:</strong> ৳{total.toFixed(2) || "0.00"}
