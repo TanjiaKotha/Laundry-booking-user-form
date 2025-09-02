@@ -173,3 +173,9 @@ button,
   @apply h-1.5 rounded-full mt-4 mx-auto max-w-xs;
   background: linear-gradient(90deg, #3b82f6, #dc2626, #f59e0b, #16a34a);
 }
+
+/* ✅ NEW RULE ADDED HERE */
+/* This overrides the 'hidden' utility from Tailwind to show the confirmation box */
+.confirm.active {
+  @apply block;
+}
