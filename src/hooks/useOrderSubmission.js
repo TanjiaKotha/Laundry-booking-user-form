@@ -1,3 +1,5 @@
+// src/hooks/useOrderSubmission.js
+
 import { useState } from 'react';
 
 export default function useOrderSubmission() {
@@ -10,9 +12,8 @@ export default function useOrderSubmission() {
     setError(null);
 
     try {
-      // --- ✅ FIX: Dynamically get the auth token. ---
-      // This is an example using localStorage. Adjust it to your app's auth method 
-      // (e.g., getting it from React Context, cookies, etc.).
+      // ✅ FIX: Dynamically get the auth token instead of using a placeholder.
+      // This example uses localStorage, but you should adapt it to your app's auth method.
       const token = localStorage.getItem('authToken');
 
       if (!token) {
@@ -23,18 +24,12 @@ export default function useOrderSubmission() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Use the retrieved token here
+          'Authorization': `Bearer ${token}`, // Use the real token
         },
         body: JSON.stringify({
           title: orderData.title,
           status: 'publish', // It's often better to set to 'publish' to see it in WordPress
-          acf: {
-            // Note: The structure here must exactly match your ACF field group for 'laundry_order'
-            room_number: orderData.fields.room_number,
-            pickup_slot: orderData.fields.pickup_slot,
-            pickup_method: orderData.fields.pickup_method,
-            services: orderData.fields.services,
-          },
+          acf: orderData.fields, // Pass the fields object directly to ACF
         }),
       });
 
