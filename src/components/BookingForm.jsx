@@ -131,7 +131,7 @@ function BookingForm() {
         </>
       )}
 
-      <div className="grid two mt-6">
+      <div className="grid one mt-6">
         <PickupOptions pickup={pickup} setPickup={setPickup} />
         <div className="grid gap-4">
           <Totals 
