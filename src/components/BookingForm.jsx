@@ -25,8 +25,8 @@ function BookingForm() {
 
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  const uniforms = services.filter(s => s.slug && s.slug.includes('uniform'));
-  const other = services.filter(s => s.slug && !s.slug.includes('other'));
+  const uniforms = services.filter(s => s.slug && s.slug.includes(''));
+  const other = services.filter(s => s.slug && !s.slug.includes('uniform'));
 
   const total = useMemo(() =>
     selectedItems.reduce((sum, entry) => sum + (entry.item.price * entry.quantity), 0),
