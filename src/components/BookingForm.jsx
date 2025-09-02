@@ -25,7 +25,7 @@ function BookingForm() {
 
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  const uniforms = services.filter(s => s.slug && s.slug.includes(''));
+  const uniforms = services.filter(s => s.slug && s.slug.includes('cloth'));
   const other = services.filter(s => s.slug && !s.slug.includes('uniform'));
 
   const total = useMemo(() =>
@@ -111,18 +111,19 @@ function BookingForm() {
       {servicesLoading ? <p className="text-center my-8">Loading services...</p> : (
         <>
           {/* ✅ RENDER ServiceCategory instead of ServiceCard */}
-          <ServiceCategory
-            title="Uniforms"
-            items={uniforms}
-            selectedItems={selectedItems}
-            onQuantityChange={handleQuantityChange}
-          />
-          <ServiceCategory
+         <ServiceCategory
             title="Uniform"
             items={other}
             selectedItems={selectedItems}
             onQuantityChange={handleQuantityChange}
           />
+          <ServiceCategory
+            title="Other Clothing"
+            items={uniforms}
+            selectedItems={selectedItems}
+            onQuantityChange={handleQuantityChange}
+          />
+
         </>
       )}
 
