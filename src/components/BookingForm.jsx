@@ -113,7 +113,7 @@ function BookingForm() {
           {/* ✅ RENDER ServiceCategory instead of ServiceCard */}
           <ServiceCategory
             title="Uniforms"
-            items={uniforms}
+            items={clothing}
             selectedItems={selectedItems}
             onQuantityChange={handleQuantityChange}
           />
