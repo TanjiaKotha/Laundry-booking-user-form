@@ -1,11 +1,12 @@
 // components/ServiceList.jsx
 import useServices from "../hooks/useServices";
-import { filterBySlug } from "../utils/filterBySlug";
 
 export default function ServiceList() {
   const { services, loading } = useServices();
-  // Corrected to use the "uniform" slug as per your instructions.
-  const uniforms = filterBySlug(services, "uniform");
+
+  // Use the same robust logic to correctly identify uniforms
+  const otherClothingSlugs = ['underwear', 'sportswear'];
+  const uniforms = services.filter(s => s.slug && !otherClothingSlugs.includes(s.slug));
 
   if (loading) return <p>Loading services...</p>;
 
