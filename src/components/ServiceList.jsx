@@ -1,11 +1,11 @@
 // components/ServiceList.jsx
 import useServices from "../hooks/useServices";
+import { filterBySlug } from "../utils/filterBySlug";
 
 export default function ServiceList() {
   const { services, loading } = useServices();
-
-  // Use the name-based filter to reliably find uniforms.
-  const uniforms = services.filter(s => s.name && s.name.toLowerCase().includes('high-vis'));
+  // ✅ FIX: Use the correct "uniform" slug for filtering.
+  const uniforms = filterBySlug(services, "uniform");
 
   if (loading) return <p>Loading services...</p>;
 
