@@ -121,7 +121,13 @@ function BookingForm() {
       <div className="grid two mt-6">
         <PickupOptions pickup={pickup} setPickup={setPickup} />
         <div className="grid gap-4">
-          <Totals selectedItems={selectedItems} slot={slot} onRemoveItem={handleRemoveItem} />
+          <Totals 
+            selectedItems={selectedItems} 
+            room={room} 
+            slot={slot} 
+            pickup={pickup} 
+            onRemoveItem={handleRemoveItem} 
+          />
           <div className="actions">
             <button type="submit" className="pay-btn alt w-full" disabled={isSubmitting}>
               {isSubmitting ? 'Submitting...' : 'Submit Booking'}
