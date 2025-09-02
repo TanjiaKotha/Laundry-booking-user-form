@@ -1,10 +1,16 @@
+// src/hooks/usePaymentMethods.js
+
 import { useEffect, useState } from 'react'
 
 export default function usePaymentMethods() {
   const [methods, setMethods] = useState([])
 
   useEffect(() => {
-    fetch('https://amalaundry.com.au/wp-json/wp/v2/payment_method')
+    // MODIFIED: Added cache-busting timestamp
+    const url = new URL('https://amalaundry.com.au/wp-json/wp/v2/payment_method');
+    url.searchParams.append('v', new Date().getTime());
+    
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         const activeMethods = data
