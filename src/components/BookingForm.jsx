@@ -13,6 +13,21 @@ function BookingForm() {
   const { services, loading: servicesLoading } = useServices();
   const slots = usePickupSlots();
 
+  // --- DEBUGGING STEP ---
+  // This will print the exact names and slugs of your services to the browser's developer console.
+  useEffect(() => {
+    if (!servicesLoading && services.length > 0) {
+      console.log("--- COPY AND PASTE THE FOLLOWING LINES ---");
+      services.forEach(s => {
+        console.log(`Name: ${s.name}, Slug: ${s.slug}`);
+      });
+      console.log("-----------------------------------------");
+    } else if (!servicesLoading) {
+      console.log("No services were loaded from the API.");
+    }
+  }, [services, servicesLoading]);
+  // --- END DEBUGGING STEP ---
+
   const [room, setRoom] = useState('');
   const [slot, setSlot] = useState('');
   const [pickup, setPickup] = useState('');
@@ -20,11 +35,9 @@ function BookingForm() {
   const [confirmed, setConfirmed] = useState(false);
 
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
-
-  // ✅ DEFINITIVE FIX: Based on your clear instructions.
-  // Uniforms have the slug "uniform".
+  
+  // Using the logic from your last instruction. The debugging step above will tell us why it's not working.
   const uniforms = services.filter(s => s.slug && s.slug.includes('uniform'));
-  // Other Clothing has the slug "cloth".
   const other = services.filter(s => s.slug && s.slug.includes('cloth'));
 
   const total = useMemo(() =>
