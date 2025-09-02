@@ -21,11 +21,11 @@ function BookingForm() {
 
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  // ✅ FINAL FIX: Define uniforms as items with "cloth" in the slug,
-  // and other items as everything that does NOT have "cloth" in the slug.
-  // This is based on the original code which showed items successfully.
-  const uniforms = services.filter(s => s.slug && s.slug.includes('cloth'));
-  const other = services.filter(s => s.slug && !s.slug.includes('cloth'));
+  // ✅ DEFINITIVE FIX: Based on your clear instructions.
+  // Uniforms have the slug "uniform".
+  const uniforms = services.filter(s => s.slug && s.slug.includes('uniform'));
+  // Other Clothing has the slug "cloth".
+  const other = services.filter(s => s.slug && s.slug.includes('cloth'));
 
   const total = useMemo(() =>
     selectedItems.reduce((sum, entry) => sum + (entry.item.price * entry.quantity), 0),
@@ -105,7 +105,6 @@ function BookingForm() {
 
       {servicesLoading ? <p className="text-center my-8">Loading services...</p> : (
         <>
-          {/* ✅ FINAL FIX: Pass the corrected arrays to the correct categories. */}
          <ServiceCategory
             title="Uniform"
             items={uniforms}
@@ -118,7 +117,6 @@ function BookingForm() {
             selectedItems={selectedItems}
             onQuantityChange={handleQuantityChange}
           />
-
         </>
       )}
 
