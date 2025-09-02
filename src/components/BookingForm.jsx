@@ -26,7 +26,7 @@ function BookingForm() {
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
   const uniforms = services.filter(s => s.slug && s.slug.includes('uniform'));
-  const clothing = services.filter(s => s.slug && !s.slug.includes('uniform'));
+  const other = services.filter(s => s.slug && !s.slug.includes('other'));
 
   const total = useMemo(() =>
     selectedItems.reduce((sum, entry) => sum + (entry.item.price * entry.quantity), 0),
@@ -113,13 +113,13 @@ function BookingForm() {
           {/* ✅ RENDER ServiceCategory instead of ServiceCard */}
           <ServiceCategory
             title="Uniforms"
-            items={clothing}
+            items={uniforms}
             selectedItems={selectedItems}
             onQuantityChange={handleQuantityChange}
           />
           <ServiceCategory
             title="Other Clothing"
-            items={clothing}
+            items={other}
             selectedItems={selectedItems}
             onQuantityChange={handleQuantityChange}
           />
