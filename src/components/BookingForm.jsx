@@ -98,7 +98,7 @@ function BookingForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="gap-8">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8px">
       <div className="grid two">
         <div className="field">
           <label htmlFor="room">Room Number *</label>
