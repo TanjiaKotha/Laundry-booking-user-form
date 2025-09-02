@@ -21,13 +21,9 @@ function BookingForm() {
 
   const { submitOrder, loading: isSubmitting, error, data: orderData } = useOrderSubmission();
 
-  // ✅ FINAL FIX: Logic based on the ACTUAL data from the console log.
-  // Uniforms are any service with "high-vis" in its name. This is the most reliable pattern.
-  const uniforms = services.filter(s => s.name && s.name.toLowerCase().includes('high-vis'));
-  
-  // Other Clothing is everything else.
-  const other = services.filter(s => s.name && !s.name.toLowerCase().includes('high-vis'));
-  
+  // ✅ FIX: Filter using the correct "uniform" and "cloth" slugs.
+  const uniforms = services.filter(s => s.slug === 'uniform');
+  const other = services.filter(s => s.slug === 'cloth');
 
   const total = useMemo(() =>
     selectedItems.reduce((sum, entry) => sum + (entry.item.price * entry.quantity), 0),
