@@ -17,6 +17,7 @@
 
 
 
+
 function Confirmation({ orderId, room, slot, pickup, camp }) {
   return (
     <div className="confirm">
